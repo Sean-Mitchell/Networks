@@ -24,9 +24,19 @@ public class SServer {
        The output sent to the console by this method is described in the handout.
     */
     public static void main(String[] args) {
-
-        // To be completed
-
+    	
+    	seed = 0;
+    	
+    	try {
+			serverSocket = new ServerSocket(portNumber);
+			System.out.println("Server Started: " + serverSocket);
+			while (true) {
+				System.out.println("Waiting for a client...");
+				new Thread(new Scribble(serverSocket.accept(), serverSocket.accept(), seed++)).start();
+			}
+		} catch (IOException e) {
+			System.out.println("Server encountered an error. Shutting down...");
+		}
     }// main method
 
 }// SServer class
