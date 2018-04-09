@@ -41,7 +41,13 @@ class Scribble implements Runnable {
 	 * add your instance/class variables, if any, after this point and before the
 	 * constructor that follows
 	 */
-
+	
+	ClientState playerState1, playerState2;
+	
+	public enum ClientState {
+		C1, C2, C3, C4, C5, C6
+	}
+	
 	/*
 	 * initialize a Scribble game: + load the dictionary + open the sockets' streams
 	 * + create an empty board + initialize the two racks with 7 random tiles each +
@@ -52,6 +58,7 @@ class Scribble implements Runnable {
 		// To be completed
 		player1 = clientSocket1;
 		player2 = clientSocket2;
+		rnd = new Random();
 		board = new char[WIDTH][HEIGHT];
 		try {
 			this.openStreams(clientSocket1, clientSocket2);
@@ -60,10 +67,21 @@ class Scribble implements Runnable {
 			
 			out1.writeUTF("Welcome to Scribble!\n\nPlease wait for your opponent...");
 			out2.writeUTF("Welcome to Scribble!");
+			
+			if(rnd.nextBoolean()) {
+				name2 = in2.readUTF();
+				out1.writeUTF("Please wait for your opponent...");
+			}else {
+				name1 = in1.readUTF();
+				out2.writeUTF("Please wait for your opponent...");
+			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		turn = 1;
+		playerState1 = ClientState.C3;
+		playerState2 = ClientState.C3;
 	}// constructor
 
 	/*
@@ -85,10 +103,22 @@ class Scribble implements Runnable {
 	 * returned string is fully specified in the traces included in the handout.
 	 */
 	String getGameState(int player) {
+		
+		String output;
+		
+		if(player == 1) {
+			output = this.toString()+"\nTurn: " + turn + "\nScores: " + score1 + " (opponent: " + score2 + ")\nRack: ";
+			for(char c : rack1) {
+				output += c + "";
+			}
+		}else {
+			output = this.toString() + "\nTurn: " + turn + "\nScores: " + score2 + " (opponent: " + score1 + ")\nRack: ";
+			for(char c : rack2) {
+				output += c + "";
+			}
+		}
 
-		// To be completed
-
-		return "";
+		return output;
 	}// getGameState method
 
 	/*
