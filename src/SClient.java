@@ -79,13 +79,17 @@ public class SClient {
 			switch (playerState)
 			{
 				case State.C1: 
-					
+					System.out.print("Please wait for your opponent...\nEnter your name: ");
+					query = console.readLine();
+					playerState = State.C2;
 					break;
 				case State.C2: 
-					
+					playerState = State.C3;					
 					break;
 				case State.C3: 
-					
+					while (reply.equals("Invalid location!")) {
+						
+					}
 					break;
 				case State.C4: 
 					
