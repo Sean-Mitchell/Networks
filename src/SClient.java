@@ -70,42 +70,56 @@ public class SClient {
 	 */
 	static void playGame() {
 		State playerState = State.C1;
+		String reply, query;
+		
 		while (true) {
-			reply = in.readUTF();
-			System.out.println(reply);
-			if (reply.equals("You lost - GAME OVER!") || reply.equals("You won - GAME OVER!")) {
-				break;
-			}
-			switch (playerState)
-			{
-				case State.C1: 
-					System.out.print("Please wait for your opponent...\nEnter your name: ");
-					query = console.readLine();
-					playerState = State.C2;
+			try {
+				reply = in.readUTF();
+				System.out.println(reply);
+				if (reply.equals("You lost - GAME OVER!") || reply.equals("You won - GAME OVER!")) {
 					break;
-				case State.C2: 
-					playerState = State.C3;					
-					break;
-				case State.C3: 
-					while (reply.equals("Invalid location!")) {
+				}
+				switch (playerState)
+				{
+					case C1: 
+						System.out.print("Please wait for your opponent...\nEnter your name: ");
+						query = console.readLine();
+						System.out.println(query + ", please wait for your opponent...");
+						playerState = State.C2;
+						break;
+					case C2:
+						playerState = State.C3;				
+						break;
+					case C3: 
+						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							playerState = State.C4;
+						}
+						break;
+					case C4: 
+						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							playerState = State.C5;
+						}
+						break;
+					case C5: 
+						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							playerState = State.C6;
+						}
+						break;
+					case C6:
 						
-					}
-					break;
-				case State.C4: 
-					
-					break;
-				case State.C5: 
-					
-					break;
-				case State.C6: 
-					
-					break;
+						break;
+				}
+				if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
+					System.out.print("Enter your name: ");
+				}
+				query = console.readLine();
+				out.writeUTF(query);
+			}catch(IOException e) {
+				e.getStackTrace();
 			}
-			if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
-				System.out.print("Enter your name: ");
-			}
-			query = console.readLine();
-			out.writeUTF(query);
 		}
 		close();
 
