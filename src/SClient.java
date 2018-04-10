@@ -68,119 +68,73 @@ public class SClient {
 	 * provided traces.
 	 */
 	static void playGame() {
-		String query, reply;
+		String query = "", reply = "";
 		State playerState = State.C1;
-<<<<<<< HEAD
 		try {
 			while (true) {
-=======
-		String reply, query;
 		
-		while (true) {
-			try {
->>>>>>> 89145f91e444e7accbf31b807ffaba02b44548b1
-				reply = in.readUTF();
-				System.out.println(reply);
-				if (reply.equals("You lost - GAME OVER!") || reply.equals("You won - GAME OVER!")) {
+				/**
+				 * Alright, using contains(...) because we need to print the board too,
+				 * so that's a lot to string compare with equals(...).
+				 * If it contains those errors, then reply with the error and the game state.
+				 * Else, continue onto the next state.
+				 */
+				switch (playerState) {
+				case C1: 
+					System.out.print("Please wait for your opponent...\nEnter your name: ");
+					query = console.readLine();
+					System.out.println(query + ", please wait for your opponent...");
+					playerState = State.C2;
+					break;
+				case C2:
+					playerState = State.C3;				
+					break;
+				case C3:
+					if(reply.contains("GAME OVER!")) {
+						close();
+					}
+					System.out.print("Start location of your word (e.g., B3?) ");
+					query = console.readLine();
+					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+						System.out.println(reply);
+					}else {
+						playerState = State.C4;
+					}
+					break;
+				case C4: 
+					System.out.print("Direction of your word (A or D) : ");
+					query = console.readLine();
+					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+						System.out.println(reply);
+					}else {
+						playerState = State.C5;
+					}
+					break;
+				case C5: 
+					System.out.print("Your word: ");
+					query = console.readLine();
+					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+						System.out.println(reply);
+					}else {
+						playerState = State.C6;
+					}
+					break;
+				case C6:
+					if(reply.contains("GAME OVER!")) {
+						close();
+					}else {
+						playerState = State.C3;
+					}
 					break;
 				}
-				switch (playerState)
-				{
-<<<<<<< HEAD
-					case C1: 
-						System.out.print("Please wait for your opponent...\nEnter your name: ");
-						query = console.readLine();
-						playerState = State.C2;
-						break;
-					case C2: 
-						playerState = State.C3;					
-						break;
-					case C3: 
-						while (reply.equals("Invalid location!")) {
-							
-						}
-						break;
-					case C4: 
-						
-						break;
-					case C5: 
-						
-						break;
-					case C6: 
-						
-						break;
-				}
-				if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
-					System.out.print("Enter your name: ");
-				}
-				query = console.readLine();
-				out.writeUTF(query);
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-=======
-					/**
-					 * Alright, using contains(...) because we need to print the board too,
-					 * so that's a lot to string compare with equals(...).
-					 * If it contains those errors, then reply with the error and the game state.
-					 * Else, continue onto the next state.
-					 */
-					case C1: 
-						System.out.print("Please wait for your opponent...\nEnter your name: ");
-						query = console.readLine();
-						System.out.println(query + ", please wait for your opponent...");
-						playerState = State.C2;
-						break;
-					case C2:
-						playerState = State.C3;				
-						break;
-					case C3:
-						if(reply.contains("GAME OVER!")) {
-							close();
-						}
-						System.out.print("Start location of your word (e.g., B3?) ");
-						query = console.readLine();
-						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
-							System.out.println(reply);
-						}else {
-							playerState = State.C4;
-						}
-						break;
-					case C4: 
-						System.out.print("Direction of your word (A or D) : ");
-						query = console.readLine();
-						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
-							System.out.println(reply);
-						}else {
-							playerState = State.C5;
-						}
-						break;
-					case C5: 
-						System.out.print("Your word: ");
-						query = console.readLine();
-						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
-							System.out.println(reply);
-						}else {
-							playerState = State.C6;
-						}
-						break;
-					case C6:
-						if(reply.contains("GAME OVER!")) {
-							close();
-						}else {
-							playerState = State.C3;
-						}
-						break;
-				}
-			}catch(IOException e) {
-				e.getStackTrace();
-			}
->>>>>>> 89145f91e444e7accbf31b807ffaba02b44548b1
+		}catch(IOException e) {
+			e.getStackTrace();
 		}
+		
 		close();
 
 	}// playGame method
