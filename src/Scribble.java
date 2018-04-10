@@ -15,6 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 class Scribble implements Runnable {
 	static char[] tiles = { 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'D', 'D', 'E',
@@ -42,11 +43,8 @@ class Scribble implements Runnable {
 	 * constructor that follows
 	 */
 	
-	ClientState playerState1, playerState2;
-	
-	public enum ClientState {
-		C1, C2, C3, C4, C5, C6
-	}
+	boolean isPlayerTurn2;
+	String location, direction;
 	
 	/*
 	 * initialize a Scribble game: + load the dictionary + open the sockets' streams
@@ -60,28 +58,36 @@ class Scribble implements Runnable {
 		player2 = clientSocket2;
 		rnd = new Random();
 		board = new char[WIDTH][HEIGHT];
+		isPlayerTurn2 = rnd.nextBoolean();
+		rack1 = new char[7];
+		rack2 = new char[7];
 		try {
 			this.openStreams(clientSocket1, clientSocket2);
 
 			out1.writeUTF(toString());
 			
 			out1.writeUTF("Welcome to Scribble!\n\nPlease wait for your opponent...");
-			out2.writeUTF("Welcome to Scribble!");
+			name1 = in1.readUTF();
+			out2.writeUTF("Welcome to Scribble!\n\nPlease wait for your opponent...");
+			name2 = in2.readUTF();
 			
-			if(rnd.nextBoolean()) {
-				name2 = in2.readUTF();
-				out1.writeUTF("Please wait for your opponent...");
-			}else {
-				name1 = in1.readUTF();
-				out2.writeUTF("Please wait for your opponent...");
+			if(isPlayerTurn2)
+				state = State.I6;
+			else
+				state = State.I3;
+			
+			for(int i = 0; i < rack1.length; i++) {
+				rack1[i] = tiles[rnd.nextInt(tiles.length)];
+			}
+			
+			for(int i = 0; i < rack2.length; i++) {
+				rack2[i] = tiles[rnd.nextInt(tiles.length)];
 			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		turn = 1;
-		playerState1 = ClientState.C3;
-		playerState2 = ClientState.C3;
 	}// constructor
 
 	/*
@@ -90,8 +96,163 @@ class Scribble implements Runnable {
 	 * provided traces.
 	 */
 	public void run() {
+		while (true) {
+			String input = "";
+			
+			boolean[] inHand = new boolean[7];
+			boolean hasLetter = false;
+			char missingLetter = '-';
+			char[] rack = {};
+			
+			try {
+				if((state == State.I3 || state == State.I6) && turn < 3) { //ask for a location
+					
+					turn ++;
+					
+					if(state == State.I3)
+						input = in1.readUTF();
+					else
+						input = in2.readUTF();
+					
+					if(input.length() != 2) {
+						if(state == State.I3)
+							out1.writeUTF(getGameState(2) + "Invalid location!");
+						if(state == State.I6)
+							out2.writeUTF(getGameState(2) + "Invalid location!");
+					}
+					
+					String a = input.substring(0, 1);
+					String b = input.substring(1);
+					
+					if(!Pattern.matches(".*[A-Z].*", a)) {
+						if(state == State.I3)
+							out1.writeUTF(getGameState(1) + "Invalid location!");
+						if(state == State.I6)
+							out2.writeUTF(getGameState(2) + "Invalid location!");
+					}else if(!Pattern.matches(".*[0-9].*", b)) {
+						if(state == State.I3)
+							out1.writeUTF(getGameState(1) + "Invalid location!");
+						if(state == State.I6)
+							out2.writeUTF(getGameState(2) + "Invalid location!");
+					}
+					
+					location = input; //valid location
+					
+					if(state == State.I3)
+						state = State.I4;
+					else
+						state = State.I7;
+						
+				}else if((state == State.I4 || state == State.I7) && turn < 3) { //ask for a direction
+					turn++;
+					
+					if(state == State.I4)
+						input = in1.readUTF();
+					else
+						input = in2.readUTF();
+					
+					if(input.length() != 1) { //not the write length
+						if(state == State.I4)
+							out1.writeUTF(getGameState(2) + "Invalid direction!");
+						else
+							out2.writeUTF(getGameState(2) + "Invalid direction!");
+					}
+					
+					if(!input.equals("A") || !input.equals("D")) { //not matching A or D
+						if(state == State.I4)
+							out1.writeUTF(getGameState(1) + "Invalid direction!");
+						else
+							out2.writeUTF(getGameState(2) + "Invalid direction!");
+					}
+					
+					direction = input; //valid direction
+					
+					if(state == State.I4)
+						state = State.I5;
+					else
+						state = State.I8;
+					
+				}else if((state == State.I5 || state == State.I8) && turn < 3) { //ask for a word
+					turn++;
+					
+					if(state == State.I5) {
+						input = in1.readUTF();
+						rack = rack1;
+					}
+					else {
+						input = in2.readUTF();
+						rack = rack2;
+					}
+						if(!isInDictionary(input)) {
+							out2.writeUTF(getGameState(2) + "The word "+input+" is not in the dictionary.");
+						}
+						
+						for(int i = 0; i < input.length(); i ++) {
+							for(int j = 0; j < rack.length; j++) {
+								if(input.charAt(i) == rack[j] && !inHand[j]) {
+									inHand[j] = true;
+									hasLetter = true;
+									break;
+								}
+								missingLetter = Character.toUpperCase(input.charAt(i));
+							}
+							if(!hasLetter)
+								break;
+							hasLetter = false;
+							missingLetter = '-';
+						}
+						
+						if(missingLetter != '-') { //no letter available
+							if(state == State.I5)
+								out1.writeUTF(getGameState(1) + "You do not have the letter " + missingLetter + " in your rack!");
+							else
+								out2.writeUTF(getGameState(2) + "You do not have the letter " + missingLetter + " in your rack!");
+						}
+						
+						//TODO: Fill the board
+						
+						int row, col;
+						char c = location.charAt(0); // row
+						boolean isSuccessful = false;
+						
+						row = c == 'A' ? 0 : c == 'B' ? 1 : c == 'C' ? 2 : c == 'D' ? 3 : c == 'E' ? 4 :
+							c == 'F' ? 5 : c == 'G' ? 6 : c == 'H' ? 7 : c == 'I' ? 8 : 9;
+						
+						col = Integer.parseInt(location.charAt(1) + "");
+						
+						if(direction.equals("A")) {
+							
+							
+							
+						} else {
+							
+						}
+						
+						if(isSuccessful) {
+							for(int i = 0; i < inHand.length; i++) { //refil the rack
+								if(inHand[i]) {							
+									rack[i] = tiles[rnd.nextInt(tiles.length)];
+								}
+							}
+						}
+						
+						if(state == State.I5 && isSuccessful) {
+							state = State.I3;
+							rack1 = rack;
+						}
+						else if(state == State.I8 && isSuccessful){
+							state = State.I6;
+							rack2 = rack;
+						}
+				}else { //gameover
+					
+				}
 
-		// To be completed
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 
 	}// run method
 
@@ -118,7 +279,7 @@ class Scribble implements Runnable {
 			}
 		}
 
-		return output;
+		return output + "\n";
 	}// getGameState method
 
 	/*
