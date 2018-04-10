@@ -81,6 +81,12 @@ public class SClient {
 				}
 				switch (playerState)
 				{
+					/**
+					 * Alright, using contains(...) because we need to print the board too,
+					 * so that's a lot to string compare with equals(...).
+					 * If it contains those errors, then reply with the error and the game state.
+					 * Else, continue onto the next state.
+					 */
 					case C1: 
 						System.out.print("Please wait for your opponent...\nEnter your name: ");
 						query = console.readLine();
@@ -90,33 +96,47 @@ public class SClient {
 					case C2:
 						playerState = State.C3;				
 						break;
-					case C3: 
+					case C3:
+						if(reply.contains("GAME OVER!")) {
+							close();
+						}
+						System.out.print("Start location of your word (e.g., B3?) ");
+						query = console.readLine();
 						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							System.out.println(reply);
+						}else {
 							playerState = State.C4;
 						}
 						break;
 					case C4: 
+						System.out.print("Direction of your word (A or D) : ");
+						query = console.readLine();
 						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							System.out.println(reply);
+						}else {
 							playerState = State.C5;
 						}
 						break;
 					case C5: 
+						System.out.print("Your word: ");
+						query = console.readLine();
 						if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 								reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							System.out.println(reply);
+						}else {
 							playerState = State.C6;
 						}
 						break;
 					case C6:
-						
+						if(reply.contains("GAME OVER!")) {
+							close();
+						}else {
+							playerState = State.C3;
+						}
 						break;
 				}
-				if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
-					System.out.print("Enter your name: ");
-				}
-				query = console.readLine();
-				out.writeUTF(query);
 			}catch(IOException e) {
 				e.getStackTrace();
 			}
