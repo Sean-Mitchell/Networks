@@ -28,15 +28,7 @@ public class SClient {
 		try {
 			socket = new Socket(hostName, portNumber);
 			openStreams();
-			while (true) {
-				reply = in.readUTF();
-				System.out.println(reply);
-				if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
-					System.out.print("Enter your name: ");
-				}
-				query = console.readLine();
-				out.writeUTF(query);
-			}
+			playGame();
 		} catch (UnknownHostException e) {
 			System.err.println("Unknown host: " + hostName);
 			System.exit(1);
@@ -61,9 +53,14 @@ public class SClient {
 	 * close all open I/O streams and sockets
 	 */
 	static void close() {
-
-		// To be completed
-
+    	try {
+    	    if (console != null)  { console.close(); } 
+    	    if (in != null)       { in.close();      } 
+    	    if (out != null)      { out.close();     } 
+    	    if (socket != null)   { socket.close();  } 
+    	} catch (IOException e) {
+    	    System.err.println("Error in close(): " + e.getMessage());
+    	} 
 	}// close method
 
 	/*
@@ -72,8 +69,41 @@ public class SClient {
 	 * provided traces.
 	 */
 	static void playGame() {
-
-		// To be completed
+		State playerState = State.C1;
+		while (true) {
+			reply = in.readUTF();
+			System.out.println(reply);
+			if (reply.equals("You lost - GAME OVER!") || reply.equals("You won - GAME OVER!")) {
+				break;
+			}
+			switch (playerState)
+			{
+				case State.C1: 
+					
+					break;
+				case State.C2: 
+					
+					break;
+				case State.C3: 
+					
+					break;
+				case State.C4: 
+					
+					break;
+				case State.C5: 
+					
+					break;
+				case State.C6: 
+					
+					break;
+			}
+			if(reply.equals("Welcome to Scribble!\n\nPlease wait for your opponent...")) {
+				System.out.print("Enter your name: ");
+			}
+			query = console.readLine();
+			out.writeUTF(query);
+		}
+		close();
 
 	}// playGame method
 
