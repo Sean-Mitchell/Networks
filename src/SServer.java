@@ -34,6 +34,8 @@ public class SServer {
 				System.out.println("Waiting for a client...");
 				new Thread(new Scribble(serverSocket.accept(), serverSocket.accept(), seed++)).start();
 			}
+		} catch (SocketException e) {
+			System.out.println("Server encountered an error. Shutting down...");
 		} catch (IOException e) {
 			System.out.println("Server encountered an error. Shutting down...");
 		}
