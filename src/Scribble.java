@@ -1,7 +1,7 @@
 
 /* Game thread for the Scribble app
 
-   @author YOUR FULL NAME GOES HERE
+   @author Jonathan Ly, Sean Mitchell
 
    @version CS 391 - Spring 2018 - A3
 */
@@ -55,7 +55,6 @@ class Scribble implements Runnable {
 	 */
 	Scribble(Socket clientSocket1, Socket clientSocket2, int seed) {
 
-		// To be completed
 		player1 = clientSocket1;
 		player2 = clientSocket2;
 		rnd = new Random();
@@ -140,7 +139,7 @@ class Scribble implements Runnable {
 			char[] rack;
 
 			try {
-				if ((state == State.I3 || state == State.I6) && turn < 6) { // ask for a location
+				if ((state == State.I3 || state == State.I6) && turn < 6) {
 					if (state == State.I3)
 						input = in1.readUTF().toUpperCase();
 					else
@@ -177,23 +176,19 @@ class Scribble implements Runnable {
 							}
 						}
 					}
-				} else if ((state == State.I4 || state == State.I7) && turn < 6) { // ask for a direction
+				} else if ((state == State.I4 || state == State.I7) && turn < 6) {
 					if (state == State.I4)
 						input = in1.readUTF().toUpperCase();
 					else
 						input = in2.readUTF().toUpperCase();
 
-					if (input.length() != 1) { // not the right length
+					if (input.length() != 1) {
 						if (state == State.I4)
 							out1.writeUTF("Invalid direction!");
 						else
 							out2.writeUTF("Invalid direction!");
 					} else {
-						if (!input.toUpperCase().trim().equals("A") && !input.toUpperCase().trim().equals("D")) { // not
-																													// matching
-																													// A
-																													// or
-																													// D
+						if (!input.toUpperCase().trim().equals("A") && !input.toUpperCase().trim().equals("D")) { 
 							if (state == State.I4)
 								out1.writeUTF("Invalid direction!");
 							else
@@ -211,7 +206,7 @@ class Scribble implements Runnable {
 						}
 					}
 
-				} else if ((state == State.I5 || state == State.I8) && turn < 6) { // ask for a word
+				} else if ((state == State.I5 || state == State.I8) && turn < 6) {
 					if (state == State.I5) {
 						input = in1.readUTF().toUpperCase();
 						rack = rack1;
@@ -269,14 +264,14 @@ class Scribble implements Runnable {
 									out2.writeUTF(input + " is too long to fit on the board.");
 							} else {
 								for (int i = 0; i < input.length(); i++) {
-									if (board[row][col + i] == input.charAt(i)) { // match, don't take out from rack
+									if (board[row][col + i] == input.charAt(i)) {
 										for (int j = 0; j < rack.length; j++) {
 											if (rack[j] == input.charAt(i))
 												notFromHand[i] = true;
 										}
-									} else if (board[row][col + i] == '\u0000') { // insert
+									} else if (board[row][col + i] == '\u0000') {
 										isSuccessful = isValidSpot(input.charAt(i), row, col + i, direction);
-									} else { // collision & no match
+									} else {
 										turn++;
 										if (state == State.I5 && turn < 6)
 											out1.writeUTF(input.charAt(i) + " in " + input
@@ -298,14 +293,14 @@ class Scribble implements Runnable {
 									out2.writeUTF(input + " is too long to fit on the board.");
 							} else {
 								for (int i = 0; i < input.length(); i++) {
-									if (board[row + i][col] == input.charAt(i)) { // match, don't take out from rack
+									if (board[row + i][col] == input.charAt(i)) {
 										for (int j = 0; j < rack.length; j++) {
 											if (rack[j] == input.charAt(i))
 												notFromHand[j] = true;
 										}
-									} else if (board[row + i][col] == '\u0000') { // insert
+									} else if (board[row + i][col] == '\u0000') {
 										isSuccessful = isValidSpot(input.charAt(i), row + i, col, direction);
-									} else { // collision & no match
+									} else {
 										if (state == State.I5 && turn < 6)
 											out1.writeUTF(input.charAt(i) + " in " + input
 													+ " conflicts with a different letter on the board.");
@@ -336,7 +331,7 @@ class Scribble implements Runnable {
 							}
 
 							System.out.println("Successful");
-							for (int i = 0; i < rack.length; i++) { // refil the rack
+							for (int i = 0; i < rack.length; i++) {
 								for (int j = 0; j < notFromHand.length; j++) {
 									if (!notFromHand[j] && input.charAt(j) == rack[i]) {
 										rack[i] = tiles[rnd.nextInt(tiles.length)];
@@ -362,7 +357,7 @@ class Scribble implements Runnable {
 					}
 				}
 
-				if (turn >= 6) { // gameover
+				if (turn >= 6) {
 					if (score1 > score2) {
 						out1.writeUTF("You won - GAME OVER!");
 						out2.writeUTF("You lose - GAME OVER!");
@@ -379,7 +374,6 @@ class Scribble implements Runnable {
 				e.printStackTrace();
 			}
 		}
-
 	}// run method
 
 	/**
@@ -411,7 +405,7 @@ class Scribble implements Runnable {
 			while (isWithinBoard(tempRow, tempCol + 1) && board[tempRow][tempCol + 1] != '\u0000') {
 				s += board[tempRow][tempCol];
 				tempCol++;
-			} // left
+			}
 			for (int i = s.length() - 1; i >= 0; i--) {
 				reverse = reverse + s.charAt(i);
 			}
@@ -429,7 +423,7 @@ class Scribble implements Runnable {
 			while (isWithinBoard(tempRow, tempCol - 1) && board[tempRow][tempCol - 1] != '\u0000') {
 				s += board[tempRow][tempCol];
 				tempCol--;
-			} // left
+			}
 			for (int i = s.length() - 1; i >= 0; i--) {
 				reverse = reverse + s.charAt(i);
 			}
@@ -447,7 +441,7 @@ class Scribble implements Runnable {
 			while (isWithinBoard(tempRow + 1, tempCol) && board[tempRow + 1][tempCol] != '\u0000') {
 				s += board[tempRow + 1][tempCol];
 				tempRow++;
-			} // down
+			}
 			if (!isInDictionary(s))
 				return false;
 
@@ -462,7 +456,7 @@ class Scribble implements Runnable {
 			while (isWithinBoard(tempRow - 1, tempCol) && board[tempRow - 1][tempCol] != '\u0000') {
 				s += board[tempRow - 1][tempCol];
 				tempRow--;
-			} // up
+			}
 
 			for (int i = s.length() - 1; i >= 0; i--) {
 				reverse = reverse + s.charAt(i);
@@ -481,7 +475,6 @@ class Scribble implements Runnable {
 	 * returned string is fully specified in the traces included in the handout.
 	 */
 	String getGameState(int player) {
-
 		String output = "";
 
 		int score = 0;
@@ -540,10 +533,8 @@ class Scribble implements Runnable {
 	 * sorted in alphabetical order within dict.
 	 */
 	static void loadDictionary() {
-
 		BufferedReader reader = null;
 
-		// To be completed
 		try {
 			reader = new BufferedReader(new FileReader(new File("dict.txt")));
 
@@ -568,7 +559,6 @@ class Scribble implements Runnable {
 				e.printStackTrace();
 			}
 		}
-
 	}// loadDictionary method
 
 	/*
@@ -602,9 +592,6 @@ class Scribble implements Runnable {
 	 * an interior '+' may NOT be displayed when it is surrounded by 4 letters.
 	 */
 	public String toString() {
-
-		// To be completed
-
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(" |0|1|2|3|4|5|6|7|8|9|\n");
@@ -649,7 +636,6 @@ class Scribble implements Runnable {
 	 * corresponding instance variables of this object
 	 */
 	void openStreams(Socket socket1, Socket socket2) throws IOException {
-
 		this.player1 = socket1;
 		this.player2 = socket2;
 		try {

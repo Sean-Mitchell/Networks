@@ -1,6 +1,6 @@
 /* Server program for the Scribble app
 
-   @author YOUR FULL NAME GOES HERE
+   @author Jonathan Ly, Sean Mitchell
 
    @version CS 391 - Spring 2018 - A3
 */

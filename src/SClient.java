@@ -1,7 +1,7 @@
 
 /* Client program for the Scribble app
 
-   @author <YOUR FULL NAME GOES HERE>
+   @author Jonathan Ly, Sean Mitchell
 
    @version CS 391 - Spring 2018 - A3
 */
@@ -93,7 +93,7 @@ public class SClient {
 					playerState = State.C2;
 					System.out.println(name + ", please wait for your opponent...");
 					break;
-				case C2:System.out.println("WE'RE IN C2");
+				case C2:
 					reply = in.readUTF();
 					if(reply.contains("Turn:")) {
 						System.out.println(reply);
@@ -103,7 +103,7 @@ public class SClient {
 						playerState = State.C6;
 					}
 					break;
-				case C3:System.out.println("WE'RE IN C3");
+				case C3:
 					System.out.print("Start location of your word (e.g., B3?) ");
 					query = console.readLine();
 					out.writeUTF(query);
@@ -114,7 +114,7 @@ public class SClient {
 						playerState = State.C4;
 					}
 					break;
-				case C4: System.out.println("WE'RE IN C4");
+				case C4:
 					System.out.print("Direction of your word (A or D) : ");
 					query = console.readLine();
 					out.writeUTF(query);
@@ -125,7 +125,7 @@ public class SClient {
 						playerState = State.C5;
 					}
 					break;
-				case C5: System.out.println("WE'RE IN C5");
+				case C5:
 					if(reply.contains("GAME OVER")) {
 						playerState = State.C6;
 					} else {
@@ -153,7 +153,7 @@ public class SClient {
 						}
 					}
 					break;
-				case C6: System.out.println("WE'RE IN C6");
+				case C6:
 					if(reply.contains("GAME OVER")) {
 						System.out.println(reply);
 						close();
