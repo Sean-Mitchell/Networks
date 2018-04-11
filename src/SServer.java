@@ -32,7 +32,15 @@ public class SServer {
 			System.out.println("Server Started: " + serverSocket);
 			while (true) {
 				System.out.println("Waiting for a client...");
-				new Thread(new Scribble(serverSocket.accept(), serverSocket.accept(), seed++)).start();
+				
+				Socket client1 = serverSocket.accept();
+				DataOutputStream out1 = new DataOutputStream(client1.getOutputStream());
+				out1.writeUTF("Welcome to Scribble!\nPlease wait for your opponent...");
+				Socket client2 = serverSocket.accept();
+				DataOutputStream out2 = new DataOutputStream(client2.getOutputStream());
+				out2.writeUTF("Welcome to Scribble!\nPlease wait for your opponent...");
+				
+				new Thread(new Scribble(client1, client2, seed++)).start();
 			}
 		} catch (SocketException e) {
 			System.out.println("Server encountered an error. Shutting down...");

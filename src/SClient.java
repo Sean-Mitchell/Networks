@@ -71,6 +71,8 @@ public class SClient {
 		String query = "", reply = "";
 		State playerState = State.C1;
 		try {
+			reply = in.readUTF();
+			System.out.println(reply);
 			while (true) {
 		
 				/**
@@ -79,22 +81,30 @@ public class SClient {
 				 * If it contains those errors, then reply with the error and the game state.
 				 * Else, continue onto the next state.
 				 */
+				
 				switch (playerState) {
-				case C1: 
-					System.out.print("Please wait for your opponent...\nEnter your name: ");
+				case C1:
+					System.out.print("Enter your name: ");
 					query = console.readLine();
+					out.writeUTF(query);
 					System.out.println(query + ", please wait for your opponent...");
 					playerState = State.C2;
 					break;
 				case C2:
-					playerState = State.C3;				
+					reply = in.readUTF();
+					if(reply.equals("GO")) {
+						System.out.println(in.readUTF());
+						playerState = State.C3;
+					}
 					break;
 				case C3:
-					if(reply.contains("GAME OVER!")) {
+					if(reply.contains("GAME OVER")) {
 						close();
 					}
 					System.out.print("Start location of your word (e.g., B3?) ");
 					query = console.readLine();
+					out.writeUTF(query);
+					reply = in.readUTF();
 					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
 						System.out.println(reply);
@@ -105,6 +115,8 @@ public class SClient {
 				case C4: 
 					System.out.print("Direction of your word (A or D) : ");
 					query = console.readLine();
+					out.writeUTF(query);
+					reply = in.readUTF();
 					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
 						System.out.println(reply);
@@ -115,6 +127,8 @@ public class SClient {
 				case C5: 
 					System.out.print("Your word: ");
 					query = console.readLine();
+					out.writeUTF(query);
+					reply = in.readUTF();
 					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
 							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
 						System.out.println(reply);
@@ -123,7 +137,7 @@ public class SClient {
 					}
 					break;
 				case C6:
-					if(reply.contains("GAME OVER!")) {
+					if(reply.contains("GAME OVER")) {
 						close();
 					}else {
 						playerState = State.C3;
