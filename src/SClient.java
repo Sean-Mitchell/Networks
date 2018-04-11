@@ -34,6 +34,8 @@ public class SClient {
 		} catch (IOException e) {
 			System.err.println("I/O error when connecting to " + hostName);
 			System.exit(1);
+		} catch(NullPointerException e) {
+			System.exit(1);
 		}
 		
 	}// main method
@@ -68,7 +70,7 @@ public class SClient {
 	 * provided traces.
 	 */
 	static void playGame() {
-		String query = "", reply = "";
+		String query = "", reply = "", name = "";
 		State playerState = State.C1;
 		try {
 			reply = in.readUTF();
@@ -86,27 +88,29 @@ public class SClient {
 				case C1:
 					System.out.print("Enter your name: ");
 					query = console.readLine();
+					name = query;
 					out.writeUTF(query);
-					System.out.println(query + ", please wait for your opponent...");
 					playerState = State.C2;
+					System.out.println(name + ", please wait for your opponent...");
 					break;
 				case C2:
 					reply = in.readUTF();
-					if(reply.equals("GO")) {
-						System.out.println(in.readUTF());
+					if(reply.contains("Turn:")) {
+						System.out.println(reply);
 						playerState = State.C3;
+					}
+					if(reply.contains("GAME OVER")) {
+						playerState = State.C6;
 					}
 					break;
 				case C3:
-					if(reply.contains("GAME OVER")) {
-						close();
-					}
 					System.out.print("Start location of your word (e.g., B3?) ");
 					query = console.readLine();
 					out.writeUTF(query);
 					reply = in.readUTF();
 					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							reply.contains("is not in the dictionary") || reply.contains("on your rack!") ||
+							reply.contains("too long")) {
 						System.out.println(reply);
 					}else {
 						playerState = State.C4;
@@ -118,29 +122,49 @@ public class SClient {
 					out.writeUTF(query);
 					reply = in.readUTF();
 					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
+							reply.contains("is not in the dictionary") || reply.contains("on your rack!") ||
+							reply.contains("too long")) {
 						System.out.println(reply);
 					}else {
 						playerState = State.C5;
 					}
 					break;
 				case C5: 
-					System.out.print("Your word: ");
-					query = console.readLine();
-					out.writeUTF(query);
-					reply = in.readUTF();
-					if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
-							reply.contains("is not in the dictionary") || reply.contains("on your rack!")) {
-						System.out.println(reply);
-					}else {
+					if(reply.contains("GAME OVER")) {
 						playerState = State.C6;
+					} else {
+						System.out.print("Your word: ");
+						query = console.readLine();
+						out.writeUTF(query);
+						reply = in.readUTF();
+						if(reply.contains("GAME OVER")) {
+							close();
+						}
+						else if(reply.contains("Invalid location!") || reply.contains("Invalid direction!") || 
+								reply.contains("is not in the dictionary") || reply.contains("your rack!") ||
+								reply.contains("too long")) {
+							System.out.println(reply);
+							System.out.println(name + ", please wait for your opponent...");
+							reply = "";
+							while(!reply.contains("Direction") || !reply.contains("GAME OVER")) {reply = in.readUTF();}
+							if(reply.contains("GAME OVER")) {
+								playerState = State.C6;
+								break;
+							}
+							System.out.println(reply);
+						} else {
+							playerState = State.C6;
+						}
 					}
 					break;
 				case C6:
 					if(reply.contains("GAME OVER")) {
+						System.out.println(reply);
 						close();
+						System.exit(0);
 					}else {
-						playerState = State.C3;
+						System.out.println(name + ", please wait for your opponent...");
+						playerState = State.C2;
 					}
 					break;
 				}
