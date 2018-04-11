@@ -35,10 +35,10 @@ public class SServer {
 				
 				Socket client1 = serverSocket.accept();
 				DataOutputStream out1 = new DataOutputStream(client1.getOutputStream());
-				out1.writeUTF("Welcome to Scribble!\nPlease wait for your opponent...");
+				out1.writeUTF("Welcome to Scribble!\n\nPlease wait for your opponent...");
 				Socket client2 = serverSocket.accept();
 				DataOutputStream out2 = new DataOutputStream(client2.getOutputStream());
-				out2.writeUTF("Welcome to Scribble!\nPlease wait for your opponent...");
+				out2.writeUTF("Welcome to Scribble!\n\nPlease wait for your opponent...");
 				
 				new Thread(new Scribble(client1, client2, seed++)).start();
 			}
